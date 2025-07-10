@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🌟 Epic RPG</title>
+  <style>
+    body {
+      background: linear-gradient(to bottom, #3e0330ef, #2f0228b6);
+      color: #eee;
+      font-family: 'Courier New', Courier, monospace;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+      text-align: center;
+    }
+    #sceneImg {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+    h1 {
+      color: #ffd700;
+    }
+    #story {
+      margin: 20px 0;
+      font-size: 1.2em;
+      min-height: 100px;
+    }
+    .choice-btn {
+         background-color: #d471c2d1;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 1em;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .choice-btn:hover {
+        background-color: #ad06916f;
+    }
+    #stats {
+      margin-top: 15px;
+            background: #34012cb6;
+             box-shadow: 0 0 5px 6px  purple;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    #stats strong {
+      color: #ffd700;
+    }
+  </style>
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+  <h1>🔥 "MysticQuest" 🔥</h1>
+  <img id="sceneImg" src="https://source.unsplash.com/800x300/?fantasy,forest" alt="Scene">
+  <div id="story">Welcome, adventurer! Click below to start.</div>
+
+  <button id="choice1" class="choice-btn">Start</button>
+  <button id="choice2" class="choice-btn" style="display:none;"></button>
+
+  <div id="stats">
+    <div><strong>Name:</strong> <span id="playerName">-</span></div>
+    <div><strong>Health:</strong> <span id="health">100</span></div>
+    <div><strong>Score:</strong> <span id="score">0</span></div>
+    <div><strong>Inventory:</strong> <span id="inventory">Empty</span></div>
+  </div>
+
+  <audio id="sound"></audio>
+  <audio id="bgMusic" src="https://www.fesliyanstudios.com/play-mp3/387" loop autoplay></audio>
+
+  <script>
+    let playerName = "";
+    let health = 100;
+    let score = 0;
+    let inventory = [];
+
+    const story = document.getElementById('story');
+    const sceneImg = document.getElementById('sceneImg');
+    const btn1 = document.getElementById('choice1');
+    const btn2 = document.getElementById('choice2');
+    const nameEl = document.getElementById('playerName');
+    const healthEl = document.getElementById('health');
+    const scoreEl = document.getElementById('score');
+    const inventoryEl = document.getElementById('inventory');
+    const sound = document.getElementById('sound');
+    const bgMusic = document.getElementById('bgMusic');
+    bgMusic.volume = 0.2;
+
+    function updateStats() {
+      nameEl.textContent = playerName;
+      healthEl.textContent = health;
+      scoreEl.textContent = score;
+      inventoryEl.textContent = inventory.length > 0 ? inventory.join(", ") : "Empty";
+    }
+
+    function playSound(url) {
+      sound.src = url;
+      sound.play();
+    }
+
+    function randomEvent() {
+      const events = [
+        { text: "You find shiny gold coins!", effect: () => { score += 20; } },
+        { text: "You trip and hurt yourself.", effect: () => { health -= 10; } },
+        { text: "A traveler gives you a magic scroll.", effect: () => { inventory.push("Magic Scroll"); } }
+      ];
+      const event = events[Math.floor(Math.random() * events.length)];
+      story.textContent += " " + event.text;
+      event.effect();
+      updateStats();
+    }
+
+    function startGame() {
+      playerName = prompt("What's your name, brave hero?") || "Hero";
+      health = 100;
+      score = 0;
+      inventory = [];
+      updateStats();
+      sceneImg.src = "https://source.unsplash.com/800x300/?fantasy,forest";
+      playSound('https://freesound.org/data/previews/250/250629_4486188-lq.mp3');
+
+      story.textContent = "Welcome, " + playerName + "! Do you want to explore the forest or enter the dark cave?";
+      btn1.textContent = "Explore Forest";
+      btn2.textContent = "Enter Cave";
+      btn2.style.display = "inline-block";
+
+      btn1.onclick = exploreForest;
+      btn2.onclick = enterCave;
+    }
+
+    function exploreForest() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?mystic,forest";
+      playSound('https://freesound.org/data/previews/66/66717_931655-lq.mp3');
+
+      story.textContent = "In the forest, you find a healing herb and meet a villager.";
+      health += 10;
+      score += 20;
+      inventory.push("Healing Herb");
+      updateStats();
+
+      btn1.textContent = "Visit village";
+      btn2.textContent = "Keep exploring";
+
+      btn1.onclick = () => { visitVillage(); randomEvent(); };
+      btn2.onclick = () => { findSword(); randomEvent(); };
+    }
+
+    function enterCave() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?dark,cave";
+      playSound('https://freesound.org/data/previews/352/352651_4019027-lq.mp3');
+
+      story.textContent = "Inside, you see a sleeping dragon!";
+      btn1.textContent = "Steal treasure";
+      btn2.textContent = "Fight dragon";
+
+      btn1.onclick = () => { stealTreasure(); randomEvent(); };
+      btn2.onclick = fightDragon;
+    }
+
+    function visitVillage() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?village,fantasy";
+      playSound('https://freesound.org/data/previews/174/174027_2398404-lq.mp3');
+
+      story.textContent = "The villager gives you a magic key.";
+      inventory.push("Magic Key");
+      score += 30;
+      updateStats();
+
+      btn1.textContent = "Look for treasure";
+      btn2.style.display = "none";
+      btn1.onclick = findChestWithKey;
+    }
+
+    function findSword() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?sword";
+      playSound('https://freesound.org/data/previews/66/66717_931655-lq.mp3');
+
+      story.textContent = "You find an ancient sword!";
+      inventory.push("Ancient Sword");
+      score += 50;
+      updateStats();
+
+      btn1.textContent = "Look for treasure";
+      btn2.style.display = "none";
+      btn1.onclick = findChestWithoutKey;
+    }
+
+    function stealTreasure() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?dragon";
+      playSound('https://freesound.org/data/previews/276/276020_4486188-lq.mp3');
+
+      story.textContent = "Dragon wakes! You escape but get scratched.";
+      health -= 40;
+      score += 40;
+      updateStats();
+
+      btn1.textContent = "Look for chest";
+      btn2.style.display = "none";
+      btn1.onclick = findChestWithoutKey;
+    }
+
+    function fightDragon() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?dragon";
+      playSound('https://freesound.org/data/previews/276/276020_4486188-lq.mp3');
+
+      let enemyHealth = 50;
+      while (enemyHealth > 0 && health > 0) {
+        const playerDamage = Math.floor(Math.random() * 20) + 5;
+        const enemyDamage = Math.floor(Math.random() * 15) + 5;
+        enemyHealth -= playerDamage;
+        health -= enemyDamage;
+      }
+
+      if (health > 0) {
+        story.textContent = "You defeated the dragon but took damage. Health: " + health;
+        score += 100;
+        inventory.push("Dragon Treasure");
+        updateStats();
+
+        btn1.textContent = "Look for treasure";
+        btn2.style.display = "none";
+        btn1.onclick = () => { findChestWithKey(); randomEvent(); };
+      } else {
+        story.textContent = "The dragon defeated you! You have fallen.";
+        updateStats();
+
+        btn1.textContent = "Play Again";
+        btn2.style.display = "none";
+        btn1.onclick = startGame;
+      }
+    }
+
+    function findChestWithKey() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?treasure,chest";
+      playSound('https://freesound.org/data/previews/131/131660_2398404-lq.mp3');
+
+      story.textContent = "You open the chest with your key. Legendary armor inside!";
+      inventory.push("Legendary Armor");
+      score += 100;
+      updateStats();
+
+      btn1.textContent = "Finish adventure";
+      btn2.style.display = "none";
+      btn1.onclick = endGame;
+    }
+
+    function findChestWithoutKey() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?treasure,chest";
+      playSound('https://freesound.org/data/previews/131/131657_2398404-lq.mp3');
+
+      story.textContent = "You find a chest but can't open it.";
+      score += 10;
+      updateStats();
+
+      btn1.textContent = "Finish adventure";
+      btn2.style.display = "none";
+      btn1.onclick = endGame;
+    }
+
+    function endGame() {
+      sceneImg.src = "https://source.unsplash.com/800x300/?sunset,mountain";
+      playSound('https://freesound.org/data/previews/174/174027_2398404-lq.mp3');
+
+      if (health > 0) {
+        story.textContent = "Congratulations, " + playerName + "! You survived. Final score: " + score;
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+      } else {
+        story.textContent = "Oh no, " + playerName + ", you didn't survive.";
+      }
+
+      btn1.textContent = "Play Again";
+      btn2.style.display = "none";
+      btn1.onclick = startGame;
+    }
+
+    btn1.onclick = startGame;
+  </script>
+</body>
+</html>
